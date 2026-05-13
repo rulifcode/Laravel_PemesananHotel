@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -27,10 +26,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('kamar.index'));
+            return redirect()->route('kamar.index');
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah.'])->withInput($request->only('email'));
+        return back()
+            ->withErrors(['email' => 'Email atau password salah.'])
+            ->withInput($request->only('email'));
     }
 
     public function logout(Request $request)

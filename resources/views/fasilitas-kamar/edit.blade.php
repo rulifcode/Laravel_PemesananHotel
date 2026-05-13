@@ -7,10 +7,10 @@
     <div class="mb-3">
         <label class="form-label">Kamar</label>
         <select name="kamar_id" class="form-select" required>
-            @foreach($kamars as $kamar)
-                <option value="{{ $kamar->id }}"
-                    {{ (old('kamar_id',$fasilitasKamar->kamar_id)==$kamar->id)?'selected':'' }}>
-                    {{ $kamar->nomor_kamar }} - {{ $kamar->tipe }}
+            @foreach($kamar as $k)
+                <option value="{{ $k->id }}"
+                    {{ (old('kamar_id',$fasilitasKamar->kamar_id)==$k->id)?'selected':'' }}>
+                    {{ $k->nama_kamar }} - {{ $k->tipe_kamar }}
                 </option>
             @endforeach
         </select>
@@ -23,3 +23,4 @@
     <button type="submit" class="btn btn-warning">Update</button>
     <a href="{{ route('fasilitas-kamar.index') }}" class="btn btn-secondary">Batal</a>
 </form>
+@endsection

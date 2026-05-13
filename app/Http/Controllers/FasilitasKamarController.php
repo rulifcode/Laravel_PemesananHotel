@@ -16,8 +16,8 @@ class FasilitasKamarController extends Controller
 
     public function create()
     {
-        $kamar = Kamar::all();
-        return view('fasilitas-kamar.create', compact('kamar'));
+        $kamars = Kamar::all();
+        return view('fasilitas-kamar.create', compact('kamars'));
     }
 
     public function store(Request $request)
@@ -33,27 +33,27 @@ class FasilitasKamarController extends Controller
 
     public function show($id)
     {
-        $fasilitas = FasilitasKamar::with('kamar')->findOrFail($id);
-        return view('fasilitas-kamar.show', compact('fasilitas'));
+        $fasilitasKamar = FasilitasKamar::with('kamar')->findOrFail($id);
+        return view('fasilitas-kamar.show', compact('fasilitasKamar'));
     }
 
     public function edit($id)
     {
-        $fasilitas = FasilitasKamar::findOrFail($id);
-        $kamar = Kamar::all();
-        return view('fasilitas-kamar.edit', compact('fasilitas', 'kamar'));
+        $fasilitasKamar = FasilitasKamar::findOrFail($id);
+        $kamars = Kamar::all();
+        return view('fasilitas-kamar.edit', compact('fasilitasKamar', 'kamars'));
     }
 
     public function update(Request $request, $id)
     {
-        $fasilitas = FasilitasKamar::findOrFail($id);
+        $fasilitasKamar = FasilitasKamar::findOrFail($id);
 
         $request->validate([
             'nama_fasilitas' => 'required|string|max:255',
             'kamar_id'       => 'required|exists:kamar,id',
         ]);
 
-        $fasilitas->update($request->all());
+        $fasilitasKamar->update($request->all());
         return redirect()->route('fasilitas-kamar.index')->with('success', 'Fasilitas berhasil diupdate');
     }
 

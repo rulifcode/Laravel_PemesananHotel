@@ -9,8 +9,8 @@
         <select name="kamar_id" class="form-select @error('kamar_id') is-invalid @enderror" required>
             <option value="">-- Pilih Kamar --</option>
             @foreach($kamars as $kamar)
-                <option value="{{ $kamar->id }}" {{ old('kamar_id')==$kamar->id?'selected':'' }}>
-                    {{ $kamar->nomor_kamar }} - {{ $kamar->tipe }}
+                <option value="{{ $kamar->id }}" {{ old('kamar_id') == $kamar->id ? 'selected' : '' }}>
+                    {{ $kamar->nama_kamar }} - {{ $kamar->tipe_kamar }}
                 </option>
             @endforeach
         </select>
@@ -25,3 +25,4 @@
     <button type="submit" class="btn btn-primary">Simpan</button>
     <a href="{{ route('fasilitas-kamar.index') }}" class="btn btn-secondary">Batal</a>
 </form>
+@endsection

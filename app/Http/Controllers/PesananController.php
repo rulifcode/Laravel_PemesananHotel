@@ -10,14 +10,14 @@ class PesananController extends Controller
 {
     public function index()
     {
-        $pesanans = Pesanan::with('kamar')->get(); // ubah $pesanan → $pesanans
-        return view('pesanan.index', compact('pesanans')); // ubah 'pesanan' → 'pesanans'
+        $pesanans = Pesanan::with('kamar')->get();
+        return view('pesanan.index', compact('pesanans'));
     }
 
     public function create()
     {
-        $kamar = Kamar::all();
-        return view('pesanan.create', compact('kamar'));
+        $kamars = Kamar::all();
+        return view('pesanan.create', compact('kamars'));
     }
 
     public function store(Request $request)
@@ -46,8 +46,8 @@ class PesananController extends Controller
     public function edit($id)
     {
         $pesanan = Pesanan::findOrFail($id);
-        $kamar = Kamar::all();
-        return view('pesanan.edit', compact('pesanan', 'kamar'));
+        $kamars = Kamar::all();
+        return view('pesanan.edit', compact('pesanan', 'kamars'));
     }
 
     public function update(Request $request, $id)

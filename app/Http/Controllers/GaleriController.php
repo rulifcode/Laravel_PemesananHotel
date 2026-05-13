@@ -9,8 +9,8 @@ class GaleriController extends Controller
 {
     public function index()
     {
-        $galeri = Galeri::all();
-        return view('galeri.index', compact('galeri'));
+        $galeris = Galeri::all();
+        return view('galeri.index', compact('galeris'));
     }
 
     public function create()
@@ -21,8 +21,8 @@ class GaleriController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'keterangan' => 'required',
-            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'judul' => 'required',
+            'foto' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $foto = $request->file('foto');
@@ -30,7 +30,7 @@ class GaleriController extends Controller
         $foto->move(public_path('img/galeri'), $namaFoto);
 
         Galeri::create([
-            'keterangan' => $request->keterangan,
+            'judul' => $request->judul,
             'foto' => $namaFoto,
         ]);
 
@@ -47,7 +47,7 @@ class GaleriController extends Controller
     {
         $galeri = Galeri::findOrFail($id);
 
-        $data = ['keterangan' => $request->keterangan];
+        $data = ['judul' => $request->judul];
 
         if ($request->hasFile('foto')) {
             $foto = $request->file('foto');
