@@ -259,10 +259,11 @@ app_ujikom_2022/
 - [x] Bersihkan duplikat `fasilitas_kamar`, tambah unique constraint
 
 ### Fase 2 — Views Blade + Auth ✅ `(selesai 14 Mei 2026)`
-- [x] `layouts/app.blade.php` — sidebar kondisional by role
+- [x] `layouts/app.blade.php` — sidebar kondisional by role, branding **The Redison Blue** + logo
 - [x] `auth/login.blade.php` — redirect by role
 - [x] Semua views resepsionis: kamar, galeri, pesanan, fasilitas-kamar
 - [x] Semua views admin: artikel, banner, users, absensi, laporan
+- [x] **Design system** — seluruh views diselaraskan ke Tailwind custom (warna `#FF6B00`, DM Sans, komponen konsisten)
 
 ### Fase 3 — Halaman Publik `(belum)`
 - [ ] Landing page (`/`)
@@ -449,6 +450,19 @@ Tabel pesanan : nama_pemesan, email_pemesan, hp_pemesan, nama_tamu,
                 cek_in, cek_out, jml_kamar, total_harga, status
 ```
 
+### Design System (Blade Views)
+```
+Font         : DM Sans (Google Fonts)
+Warna utama  : #FF6B00 (oranye brand)
+Warna teks   : #121212 (heading), #464646 (body), #999/#aaa (muted)
+Background   : #F5F4F2 (page), #FAFAF9 (input/row), white (card)
+Border       : border-black/[0.06] (card), border-black/[0.08] (input)
+Rounded      : rounded-[10px] (card), rounded-[7px] (input/button)
+Error        : border-[#E24B4A] bg-[#FEF0F0] + text-[#E24B4A]
+Badge status : hijau #16A34A (confirmed/aktif), kuning #D97706 (pending),
+               merah #E24B4A (cancelled/ditolak), biru #3B82F6 (info)
+```
+
 ### Masalah yang Sudah Diperbaiki
 - ~~KRITIS — Tabel `users` belum ada kolom `role`~~ → ✅ sudah ada
 - ~~PENTING — Tabel `pesanan` belum ada `total_harga`~~ → ✅ sudah ada
@@ -487,18 +501,34 @@ Tabel pesanan : nama_pemesan, email_pemesan, hp_pemesan, nama_tamu,
 - [x] `Admin/AbsensiController` — clock-in/out + rekap + riwayat
 - [x] `Admin/LaporanController` — statistik pesanan + pendapatan per bulan
 
-#### Views Blade
-- [x] `layouts/app.blade.php` — Tailwind + **sidebar kondisional by role** + scrollable
+#### Views Blade — Design System
+> Semua views menggunakan design system yang seragam: Tailwind CSS, DM Sans, warna brand `#FF6B00`, komponen konsisten (card, tabel, form, badge, tombol aksi).
+
+- [x] `layouts/app.blade.php` — sidebar kondisional by role, branding **The Redison Blue** + logo `public/img/logo.png`, topbar dengan breadcrumb + tanggal + bell notif
 - [x] `auth/login.blade.php`
-- [x] `kamar/` (index, create, edit)
-- [x] `galeri/` (index, create, edit)
-- [x] `pesanan/` (index, create, edit, show)
-- [x] `fasilitas-kamar/` (index, create, edit)
-- [x] `admin/artikel/` (index, create, edit)
-- [x] `admin/banner/` (index, create, edit)
-- [x] `admin/users/` (index, create, edit)
-- [x] `admin/absensi/` (index rekap, saya)
-- [x] `admin/laporan/` (index + statistik)
+
+**Resepsionis:**
+- [x] `fasilitas-kamar/index.blade.php` — tabel dengan badge tipe kamar, icon fasilitas otomatis
+- [x] `fasilitas-kamar/create.blade.php` — form dengan quick-pick chips fasilitas
+- [x] `fasilitas-kamar/edit.blade.php`
+
+**Admin — Artikel:**
+- [x] `admin/artikel/index.blade.php`
+- [x] `admin/artikel/create.blade.php` — grid 2 kolom (kategori + status), file input Tailwind
+- [x] `admin/artikel/edit.blade.php`
+
+**Admin — Banner:**
+- [x] `admin/banner/index.blade.php` — thumbnail preview, toggle status pill hijau/abu
+- [x] `admin/banner/create.blade.php` — hint format & rasio gambar
+- [x] `admin/banner/edit.blade.php` — preview gambar saat ini sebelum input file
+
+**Admin — Users:**
+- [x] `admin/users/index.blade.php` — avatar inisial, badge "Anda", placeholder hapus diri sendiri
+- [x] `admin/users/create.blade.php` — divider profil vs keamanan
+- [x] `admin/users/edit.blade.php` — card header kontekstual (nama + email user yang diedit)
+
+**Admin — Laporan:**
+- [x] `admin/laporan/index.blade.php` — 4 stat card + 3 status card + tabel detail, filter bulan inline di header
 
 ---
 
@@ -525,13 +555,20 @@ Tabel pesanan : nama_pemesan, email_pemesan, hp_pemesan, nama_tamu,
 #### Priority 4 — Fix PesananController
 - [ ] Auto kalkulasi `total_harga`: `harga_kamar × jml_kamar × jumlah_malam`
 
-#### Priority 5 — Next.js Frontend
+#### Priority 5 — Halaman Publik (Fase 3)
+- [ ] Landing page (`/`) — referensi Figma: [Redison Hotel Landing Page](https://www.figma.com/design/DurScaQJgIuFPrm7V6KowG/Redison-Hotel-Landing-Page--Community-?node-id=1-2&p=f&t=t72DbYvtNskG5YTZ-0)
+- [ ] Katalog kamar (`/kamar`)
+- [ ] Detail kamar (`/kamar/[id]`)
+- [ ] Galeri foto (`/galeri`)
+- [ ] Artikel / promo (`/artikel`, `/artikel/[slug]`)
+- [ ] Form reservasi publik (`/pesan`)
+
+#### Priority 6 — Next.js Frontend (Fase 4)
 - [ ] Setup project Next.js
 - [ ] Halaman publik (landing, kamar, galeri, artikel, pesan)
 - [ ] Dashboard resepsionis
 - [ ] Dashboard admin
 
-referensi Figma Design https://www.figma.com/design/DurScaQJgIuFPrm7V6KowG/Redison-Hotel-Landing-Page--Community-?node-id=1-2&p=f&t=t72DbYvtNskG5YTZ-0 
 ---
 
 *Terakhir diperbarui: 14 Mei 2026*
