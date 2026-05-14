@@ -22,24 +22,32 @@ class BannerController extends Controller
     {
         $request->validate([
             'judul'  => 'required|string|max:255',
-            'gambar' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'media'  => 'required|file|mimes:jpg,jpeg,png,webp,gif,mp4,webm,ogg|max:20480',
             'link'   => 'nullable|url',
             'urutan' => 'nullable|integer',
+        ], [
+            'media.mimes' => 'Format tidak didukung. Gunakan JPG, PNG, WEBP, GIF, MP4, WEBM, atau OGG.',
+            'media.max'   => 'Ukuran file maksimal 20 MB.',
         ]);
 
-        $file = $request->file('gambar');
-        $nama = time() . '.' . $file->getClientOriginalExtension();
+        $file = $request->file('media');
+        $ext  = strtolower($file->getClientOriginalExtension());
+        $nama = time() . '_' . substr(str_shuffle('abcdefghijklmnopqrstuvwxyz'), 0, 6) . '.' . $ext;
+        $tipe = self::detectType($ext);
+
         $file->move(public_path('img/banner'), $nama);
 
         Banner::create([
             'judul'  => $request->judul,
-            'gambar' => $nama,
+            'media'  => $nama,
+            'tipe'   => $tipe,
             'link'   => $request->link,
             'aktif'  => true,
             'urutan' => $request->urutan ?? 0,
         ]);
 
-        return redirect()->route('admin.banner.index')->with('success', 'Banner berhasil ditambahkan');
+        return redirect()->route('admin.banner.index')
+                         ->with('success', 'Banner berhasil ditambahkan');
     }
 
     public function edit($id)
@@ -54,34 +62,61 @@ class BannerController extends Controller
 
         $request->validate([
             'judul'  => 'required|string|max:255',
-            'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'media'  => 'nullable|file|mimes:jpg,jpeg,png,webp,gif,mp4,webm,ogg|max:20480',
             'link'   => 'nullable|url',
             'urutan' => 'nullable|integer',
+        ], [
+            'media.mimes' => 'Format tidak didukung. Gunakan JPG, PNG, WEBP, GIF, MP4, WEBM, atau OGG.',
+            'media.max'   => 'Ukuran file maksimal 20 MB.',
         ]);
 
-        $data = $request->only('judul', 'link', 'urutan');
+        $data = $request->only(['judul', 'link', 'urutan']);
 
-        if ($request->hasFile('gambar')) {
-            $file = $request->file('gambar');
-            $nama = time() . '.' . $file->getClientOriginalExtension();
+        if ($request->hasFile('media')) {
+            $oldPath = public_path('img/banner/' . $banner->media);
+            if (file_exists($oldPath)) unlink($oldPath);
+
+            $file          = $request->file('media');
+            $ext           = strtolower($file->getClientOriginalExtension());
+            $nama          = time() . '_' . substr(str_shuffle('abcdefghijklmnopqrstuvwxyz'), 0, 6) . '.' . $ext;
+            $data['media'] = $nama;
+            $data['tipe']  = self::detectType($ext);
+
             $file->move(public_path('img/banner'), $nama);
-            $data['gambar'] = $nama;
         }
 
         $banner->update($data);
-        return redirect()->route('admin.banner.index')->with('success', 'Banner berhasil diupdate');
+
+        return redirect()->route('admin.banner.index')
+                         ->with('success', 'Banner berhasil diupdate');
     }
 
     public function toggle($id)
     {
         $banner = Banner::findOrFail($id);
         $banner->update(['aktif' => !$banner->aktif]);
-        return redirect()->route('admin.banner.index')->with('success', 'Status banner berhasil diubah');
+        return redirect()->route('admin.banner.index')
+                         ->with('success', 'Status banner berhasil diubah');
     }
 
     public function destroy($id)
     {
-        Banner::findOrFail($id)->delete();
-        return redirect()->route('admin.banner.index')->with('success', 'Banner berhasil dihapus');
+        $banner  = Banner::findOrFail($id);
+        $oldPath = public_path('img/banner/' . $banner->media);
+        if (file_exists($oldPath)) unlink($oldPath);
+
+        $banner->delete();
+
+        return redirect()->route('admin.banner.index')
+                         ->with('success', 'Banner berhasil dihapus');
+    }
+
+    private static function detectType(string $ext): string
+    {
+        return match ($ext) {
+            'mp4', 'webm', 'ogg' => 'video',
+            'gif'                => 'gif',
+            default              => 'image',
+        };
     }
 }
