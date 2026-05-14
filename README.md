@@ -3,9 +3,10 @@
 > Sistem manajemen hotel berbasis web — Laravel REST API + Next.js Frontend
 
 ![Status](https://img.shields.io/badge/status-in%20progress-yellow)
-![Laravel](https://img.shields.io/badge/backend-Laravel%2011-red)
+![Laravel](https://img.shields.io/badge/backend-Laravel%2012-red)
 ![Next.js](https://img.shields.io/badge/frontend-Next.js%2014-black)
 ![MySQL](https://img.shields.io/badge/database-MySQL-blue)
+![PHP](https://img.shields.io/badge/PHP-8.2-purple)
 
 ---
 
@@ -64,36 +65,48 @@
 
 ```
 app_ujikom_2022/
-├── backend/          # Laravel 11 (pure API)
-│   ├── app/
-│   │   ├── Http/Controllers/Api/
-│   │   ├── Models/
-│   │   └── Middleware/
-│   ├── database/migrations/
-│   ├── routes/api.php
-│   └── storage/app/public/
-│
-└── frontend/         # Next.js 14
-    ├── app/
-    │   ├── (public)/           # Halaman publik
-    │   │   ├── page.tsx        # Landing page
-    │   │   ├── kamar/
-    │   │   ├── artikel/
-    │   │   ├── galeri/
-    │   │   └── pesan/
-    │   └── dashboard/          # Panel staf (protected)
-    │       ├── kamar/
-    │       ├── fasilitas/
-    │       ├── galeri/
-    │       ├── pesanan/
-    │       ├── artikel/        # Admin only
-    │       ├── banner/         # Admin only
-    │       ├── users/          # Admin only
-    │       ├── absensi/        # Admin only
-    │       └── laporan/        # Admin only
-    ├── components/
-    │   └── Sidebar.tsx         # Sidebar kondisional berdasarkan role
-    └── middleware.ts            # Proteksi route dashboard
+├── app/Http/Controllers/
+│   ├── Admin/
+│   │   ├── ArtikelController.php
+│   │   ├── BannerController.php
+│   │   ├── UserController.php
+│   │   ├── AbsensiController.php
+│   │   └── LaporanController.php
+│   ├── AuthController.php
+│   ├── KamarController.php
+│   ├── GaleriController.php
+│   ├── PesananController.php
+│   └── FasilitasKamarController.php
+├── app/Http/Middleware/
+│   └── CheckRole.php
+├── app/Models/
+│   ├── User.php              (+ role, isAdmin, isResepsionis)
+│   ├── Kamar.php
+│   ├── FasilitasKamar.php
+│   ├── Galeri.php
+│   ├── Pesanan.php
+│   ├── Artikel.php
+│   ├── Banner.php
+│   └── AbsensiKaryawan.php
+├── bootstrap/app.php         (alias middleware 'role')
+├── database/migrations/
+├── routes/
+│   ├── web.php               (64 routes)
+│   └── api.php
+├── storage/app/public/
+└── resources/views/
+    ├── layouts/app.blade.php (sidebar kondisional by role)
+    ├── auth/login.blade.php
+    ├── kamar/
+    ├── fasilitas-kamar/
+    ├── galeri/
+    ├── pesanan/
+    └── admin/
+        ├── artikel/
+        ├── banner/
+        ├── users/
+        ├── absensi/
+        └── laporan/
 ```
 
 ---
@@ -144,7 +157,7 @@ app_ujikom_2022/
 | name | varchar | |
 | email | varchar | unique |
 | password | varchar | hashed |
-| **role** | enum | `admin` / `resepsionis` — **perlu ditambahkan** |
+| **role** | enum | `admin` / `resepsionis` |
 | created_at | timestamp | |
 
 #### `kamar`
@@ -188,11 +201,11 @@ app_ujikom_2022/
 | cek_in | date | |
 | cek_out | date | |
 | jml_kamar | int | |
-| **total_harga** | bigint | **perlu ditambahkan** |
+| **total_harga** | bigint | |
 | status | enum | `pending` / `dikonfirmasi` / `ditolak` / `selesai` |
 | created_at | timestamp | |
 
-### Tabel Baru (perlu dibuat)
+### Tabel Baru (sudah dibuat)
 
 #### `artikel`
 | Kolom | Tipe | Keterangan |
@@ -236,24 +249,22 @@ app_ujikom_2022/
 
 ## 5. Roadmap Pengerjaan
 
-### Fase 1 — Laravel Pure API `(1–2 hari)`
-- [ ] Tambah kolom `role` ENUM ke tabel `users` ← **blocker utama**
-- [ ] Tambah kolom `total_harga` ke tabel `pesanan`
-- [ ] Install & konfigurasi Laravel Sanctum
-- [ ] Buat migration: `artikel`, `banner`, `absensi_karyawan`
-- [ ] Konversi routes dari `web.php` ke `api.php`
-- [ ] Buat API controllers dengan response JSON
-- [ ] Middleware role: `admin` dan `resepsionis`
-- [ ] Bersihkan duplikat `fasilitas_kamar`, tambah unique constraint
+### Fase 1 — Laravel Backend ✅ `(selesai 14 Mei 2026)`
+- [x] Tambah kolom `role` ENUM ke tabel `users`
+- [x] Tambah kolom `total_harga` ke tabel `pesanan`
+- [x] Install & konfigurasi Middleware CheckRole
+- [x] Migration: `artikel`, `banner`, `absensi_karyawan`
+- [x] Controllers penuh: resepsionis + Admin/
+- [x] routes/web.php — 64 routes, pisah admin vs resepsionis
+- [x] Bersihkan duplikat `fasilitas_kamar`, tambah unique constraint
 
-### Fase 2 — Next.js Setup + Auth `(1 hari)`
-- [ ] `npx create-next-app@latest frontend`
-- [ ] Setup `middleware.ts` untuk proteksi route `/dashboard`
-- [ ] Buat halaman login (hit `POST /api/login`)
-- [ ] Simpan token + role di cookie/localStorage
-- [ ] Buat komponen `Sidebar.tsx` kondisional berdasarkan role
+### Fase 2 — Views Blade + Auth ✅ `(selesai 14 Mei 2026)`
+- [x] `layouts/app.blade.php` — sidebar kondisional by role
+- [x] `auth/login.blade.php` — redirect by role
+- [x] Semua views resepsionis: kamar, galeri, pesanan, fasilitas-kamar
+- [x] Semua views admin: artikel, banner, users, absensi, laporan
 
-### Fase 3 — Halaman Publik `(1–2 hari)`
+### Fase 3 — Halaman Publik `(belum)`
 - [ ] Landing page (`/`)
 - [ ] Katalog kamar (`/kamar`)
 - [ ] Detail kamar (`/kamar/[id]`)
@@ -261,11 +272,11 @@ app_ujikom_2022/
 - [ ] Artikel / promo (`/artikel`, `/artikel/[slug]`)
 - [ ] Form reservasi publik (`/pesan`)
 
-### Fase 4 — Dashboard CRUD + Fitur Lanjut `(2–3 hari)`
-- [ ] Dashboard kamar (resepsionis)
-- [ ] Dashboard fasilitas kamar (resepsionis)
-- [ ] Dashboard galeri (resepsionis)
-- [ ] Dashboard pesanan + update status (resepsionis)
+### Fase 4 — Next.js Frontend `(belum)`
+- [ ] Setup project Next.js
+- [ ] Setup `middleware.ts` untuk proteksi route `/dashboard`
+- [ ] Buat komponen `Sidebar.tsx` kondisional berdasarkan role
+- [ ] Dashboard kamar, fasilitas, galeri, pesanan (resepsionis)
 - [ ] Absensi mandiri (resepsionis)
 - [ ] CRUD artikel + upload thumbnail (admin)
 - [ ] CRUD banner + toggle aktif / urutan (admin)
@@ -282,58 +293,45 @@ app_ujikom_2022/
 - PHP >= 8.2
 - Composer
 - Node.js >= 18
-- MySQL
+- MySQL, XAMPP
 
 ### Backend (Laravel)
 
 ```bash
-# 1. Clone dan masuk ke folder backend
-cd backend
-
-# 2. Install dependencies
+cd C:/xampp/htdocs
+git clone <repo-url> app_ujikom_2022
+cd app_ujikom_2022
 composer install
-
-# 3. Salin env dan generate key
 cp .env.example .env
 php artisan key:generate
+```
 
-# 4. Konfigurasi database di .env
-DB_DATABASE=app_ujikom_2022
+Konfigurasi `.env`:
+```
+DB_DATABASE=db_ukk_2022
 DB_USERNAME=root
 DB_PASSWORD=
-
-# 5. Jalankan migrasi dan seeder
-php artisan migrate:fresh --seed
-
-# 6. Link storage untuk file upload
-php artisan storage:link
-
-# 7. Jalankan server
-php artisan serve
-# → http://localhost:8000
 ```
-
-### Frontend (Next.js)
 
 ```bash
-# 1. Masuk ke folder frontend
-cd frontend
-
-# 2. Install dependencies
-npm install
-
-# 3. Salin env
-cp .env.example .env.local
-
-# 4. Isi NEXT_PUBLIC_API_URL
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-
-# 5. Jalankan dev server
-npm run dev
-# → http://localhost:3000
+# Import SQL dump via phpMyAdmin
+php artisan storage:link
+php artisan serve
+# -> http://localhost:8000
 ```
 
-### Akun Default (dari Seeder)
+### Frontend (Next.js) — belum setup
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local
+# Isi NEXT_PUBLIC_API_URL=http://localhost:8000/api
+npm run dev
+# -> http://localhost:3000
+```
+
+### Akun Default
 
 | Role | Email | Password |
 |---|---|---|
@@ -420,96 +418,121 @@ Base URL: `http://localhost:8000/api`
 
 ## 8. Catatan Penting Dev
 
-### VS Code
-- **Format On Save HARUS OFF** saat mengedit file PHP/Blade
-- Gunakan PowerShell `Set-Content` untuk menulis file jika diperlukan
-- Jangan biarkan formatter mengubah indentasi file Blade
+### Tulis File PHP via PowerShell — WAJIB pakai ini
+```powershell
+[System.IO.File]::WriteAllText(
+    "path\ke\file.php",
+    "konten",
+    [System.Text.UTF8Encoding]::new($false)
+)
+```
+Jangan pakai `Set-Content` atau heredoc `@'...'@` — menyisipkan BOM yang merusak PHP.
 
-### Konvensi Penamaan
-
-**Variabel controller harus cocok dengan Blade:**
-```php
-// Controller
-$kamars       → compact('kamars')
-$pesanans     → compact('pesanans')
-$fasilitasKamars → compact('fasilitasKamars')
+### Cek BOM
+```powershell
+$bytes = [System.IO.File]::ReadAllBytes("file.php")
+($bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF)
 ```
 
-**Nama kolom database:**
+### Konvensi Penamaan
+```
+Route resepsionis : kamar.*, galeri.*, pesanan.*, fasilitas-kamar.*
+Route admin only  : admin.artikel.*, admin.banner.*, admin.users.*
+                    admin.absensi.index, admin.laporan.index
+Route semua role  : absensi.masuk, absensi.keluar, absensi.saya
+```
+
+### Nama Kolom Database
 ```
 Tabel kamar   : nama_kamar, tipe_kamar, harga, deskripsi, foto
 Tabel pesanan : nama_pemesan, email_pemesan, hp_pemesan, nama_tamu,
                 cek_in, cek_out, jml_kamar, total_harga, status
 ```
 
-### Migration
-- File migration baru pakai timestamp terkini: `2026_05_12_15xxxx`
-- Reset DB: `php artisan migrate:fresh --seed`
-
-### Masalah Database yang Harus Diperbaiki
-1. **KRITIS** — Tabel `users` belum ada kolom `role` → sidebar berbasis role tidak akan jalan
-2. **PENTING** — Tabel `pesanan` belum ada `total_harga` → histori harga bisa salah jika harga kamar diubah
-3. **PENTING** — Ada duplikat `fasilitas_kamar` (ID 1 dan 4 sama-sama 'AC' untuk kamar_id 2) → tambah unique constraint `(kamar_id, nama_fasilitas)` setelah bersihkan duplikat
+### Masalah yang Sudah Diperbaiki
+- ~~KRITIS — Tabel `users` belum ada kolom `role`~~ → ✅ sudah ada
+- ~~PENTING — Tabel `pesanan` belum ada `total_harga`~~ → ✅ sudah ada
+- ~~PENTING — Ada duplikat `fasilitas_kamar`~~ → ✅ sudah dibersihkan + unique constraint
 
 ---
 
 ## 9. Progress & Checklist
 
-### Selesai ✅
+### ✅ Selesai
 
-#### Database & Backend
+#### Database & Models
 - [x] Migration: `users`, `cache`, `jobs`, `kamar`, `fasilitas_kamar`, `galeri`, `pesanan`
+- [x] Migration: `artikel`, `banner`, `absensi_karyawan`
+- [x] Kolom `role` ENUM di tabel `users`
+- [x] Kolom `total_harga` di tabel `pesanan`
+- [x] Unique constraint `(kamar_id, nama_fasilitas)` di `fasilitas_kamar`
 - [x] Model: `Kamar`, `FasilitasKamar`, `Galeri`, `Pesanan` + relasi
-- [x] Controller: `KamarController`, `GaleriController`, `PesananController`, `FasilitasKamarController`
-- [x] Routes resource: kamar, fasilitas-kamar, galeri, pesanan
-- [x] Route PATCH: `pesanan/{id}/status`
+- [x] Model: `User` (+ role, isAdmin, isResepsionis)
+- [x] Model: `Artikel`, `Banner`, `AbsensiKaryawan`
 - [x] Seeder: `UserSeeder`, `KamarSeeder`, `FasilitasKamarSeeder`, `GaleriSeeder`, `PesananSeeder`
 
-#### Views Blade (Fix)
-- [x] `kamar/index.blade.php`
-- [x] `pesanan/index.blade.php`
-- [x] `fasilitas-kamar/index.blade.php`
+#### Backend & Middleware
+- [x] Middleware `CheckRole` — alias `'role'` di `bootstrap/app.php`
+- [x] `AuthController` — login redirect by role
+- [x] `routes/web.php` — 64 routes, pisah admin vs resepsionis
+
+#### Controllers
+- [x] `KamarController` — CRUD + upload foto
+- [x] `GaleriController` — CRUD + upload foto
+- [x] `PesananController` — CRUD + updateStatus
+- [x] `FasilitasKamarController` — CRUD
+- [x] `Admin/ArtikelController` — CRUD + slug auto + upload thumbnail
+- [x] `Admin/BannerController` — CRUD + toggle aktif
+- [x] `Admin/UserController` — CRUD + hash password + ganti role
+- [x] `Admin/AbsensiController` — clock-in/out + rekap + riwayat
+- [x] `Admin/LaporanController` — statistik pesanan + pendapatan per bulan
+
+#### Views Blade
+- [x] `layouts/app.blade.php` — Tailwind + **sidebar kondisional by role** + scrollable
+- [x] `auth/login.blade.php`
+- [x] `kamar/` (index, create, edit)
+- [x] `galeri/` (index, create, edit)
+- [x] `pesanan/` (index, create, edit, show)
+- [x] `fasilitas-kamar/` (index, create, edit)
+- [x] `admin/artikel/` (index, create, edit)
+- [x] `admin/banner/` (index, create, edit)
+- [x] `admin/users/` (index, create, edit)
+- [x] `admin/absensi/` (index rekap, saya)
+- [x] `admin/laporan/` (index + statistik)
 
 ---
 
-### Belum Selesai ⏳
+### ⏳ Belum Selesai
 
-#### Views Blade
-- [ ] `layouts/app.blade.php` — layout utama
-- [ ] `kamar/create.blade.php`
-- [ ] `kamar/edit.blade.php`
-- [ ] `galeri/index.blade.php`
-- [ ] `galeri/create.blade.php`
-- [ ] `galeri/edit.blade.php`
-- [ ] `pesanan/create.blade.php`
-- [ ] `pesanan/edit.blade.php`
-- [ ] `pesanan/show.blade.php`
-- [ ] `fasilitas-kamar/create.blade.php`
-- [ ] `fasilitas-kamar/edit.blade.php`
+#### Priority 1 — Testing & Bug Fix
+- [ ] Test login admin — sidebar Admin Panel muncul
+- [ ] Test login resepsionis — sidebar Admin Panel tidak muncul
+- [ ] Test akses `/admin/*` pakai resepsionis — harusnya 403
+- [ ] Test CRUD kamar (tambah, edit, hapus, upload foto)
+- [ ] Test CRUD galeri (upload foto)
+- [ ] Test CRUD pesanan (buat, update status)
+- [ ] Test absensi clock-in/out
+- [ ] Test admin: artikel, banner, users, laporan
 
-#### Auth & Middleware
-- [ ] Halaman login
-- [ ] Middleware auth role (admin vs resepsionis)
+#### Priority 2 — Fix KamarController
+- [ ] Validasi kolom sesuai DB: `nama_kamar`, `tipe_kamar`, `harga`, `deskripsi`
+- [ ] Sekarang masih pakai `'no_kamar'` yang salah
 
-#### Perbaikan Database
-- [ ] Tambah kolom `role` ke tabel `users`
-- [ ] Tambah kolom `total_harga` ke tabel `pesanan`
-- [ ] Bersihkan duplikat `fasilitas_kamar`, tambah unique constraint
-- [ ] Migration baru: `artikel`, `banner`, `absensi_karyawan`
+#### Priority 3 — Migration & Seeder
+- [ ] Seeder: `ArtikelSeeder`, `BannerSeeder`
+- [ ] Supaya bisa `php artisan migrate:fresh --seed` dari awal
 
-#### Fase Next.js
+#### Priority 4 — Fix PesananController
+- [ ] Auto kalkulasi `total_harga`: `harga_kamar × jml_kamar × jumlah_malam`
+
+#### Priority 5 — Next.js Frontend
 - [ ] Setup project Next.js
 - [ ] Halaman publik (landing, kamar, galeri, artikel, pesan)
 - [ ] Dashboard resepsionis
 - [ ] Dashboard admin
 
-#### Testing
-- [ ] Testing semua CRUD kamar
-- [ ] Testing semua CRUD pesanan
-- [ ] Testing semua CRUD galeri
-- [ ] Testing semua CRUD fasilitas kamar
-- [ ] Testing auth & middleware role
-
+referensi Figma Design https://www.figma.com/design/DurScaQJgIuFPrm7V6KowG/Redison-Hotel-Landing-Page--Community-?node-id=1-2&p=f&t=t72DbYvtNskG5YTZ-0 
 ---
 
-*Terakhir diperbarui: Mei 2026*
+*Terakhir diperbarui: 14 Mei 2026*
+*Laravel 12.58.0 | PHP 8.2 | MySQL (XAMPP) | 64 routes*

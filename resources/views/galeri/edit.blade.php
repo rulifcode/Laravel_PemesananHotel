@@ -1,24 +1,158 @@
 @extends('layouts.app')
+
 @section('title', 'Edit Galeri')
+
 @section('content')
-<h2 class="mb-3">Edit Foto Galeri</h2>
-<form action="{{ route('galeri.update', $galeri->id) }}" method="POST" enctype="multipart/form-data">
-    @csrf @method('PUT')
-    <div class="mb-3">
-        <label class="form-label">Judul</label>
-        <input type="text" name="judul" class="form-control" value="{{ old('judul', $galeri->judul) }}" required>
+
+{{-- Page Header --}}
+<div class="flex items-end justify-between mb-5">
+    <div>
+        <h1 class="text-[17px] font-medium text-[#121212]">Edit Foto Galeri</h1>
+        <p class="text-[12px] text-[#999] mt-0.5">Perbarui informasi dan foto galeri</p>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Keterangan</label>
-        <textarea name="keterangan" class="form-control" rows="3">{{ old('keterangan', $galeri->keterangan) }}</textarea>
+    <a href="{{ route('galeri.index') }}"
+       class="inline-flex items-center gap-1.5 border border-black/[0.08] bg-white hover:bg-[#F5F4F2] text-[#464646] text-[12.5px] font-medium px-3.5 py-[7px] rounded-[7px] transition-colors">
+        <i class="bi bi-arrow-left text-sm"></i>
+        Kembali
+    </a>
+</div>
+
+{{-- Form Card --}}
+<div class="bg-white border border-black/[0.06] rounded-[10px] overflow-hidden">
+
+    <div class="px-5 py-3.5 border-b border-black/[0.06]">
+        <span class="text-[13px] font-medium text-[#121212]">Data Galeri</span>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Foto (kosongkan jika tidak diganti)</label>
-        @if($galeri->foto)
-            <div class="mb-2"><img src="{{ asset('img/galeri/' . $galeri->foto) }}" width="120" class="rounded"></div>
-        @endif
-        <input type="file" name="foto" class="form-control" accept="image/*">
-    </div>
-    <button type="submit" class="btn btn-warning">Update</button>
-    <a href="{{ route('galeri.index') }}" class="btn btn-secondary">Batal</a>
-</form>
+
+    <form action="{{ route('galeri.update', $galeri->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+
+        <div class="p-5 flex flex-col gap-5">
+
+            {{-- Judul --}}
+            <div>
+                <label class="block text-[11.5px] font-medium text-[#464646] mb-1.5">
+                    Judul <span class="text-[#FF6B00]">*</span>
+                </label>
+                <input type="text" name="judul"
+                       value="{{ old('judul', $galeri->judul) }}"
+                       placeholder="cth. Kamar Deluxe, Pemandangan Kolam"
+                       class="w-full text-[12.5px] text-[#121212] placeholder-[#ccc] bg-[#FAFAF9] border rounded-[7px] px-3 py-[8px] outline-none transition-colors
+                              {{ $errors->has('judul') ? 'border-[#E24B4A] bg-[#FEF0F0]' : 'border-black/[0.08] focus:border-[#FF6B00] focus:bg-white' }}">
+                @error('judul')
+                    <p class="text-[11px] text-[#E24B4A] mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Keterangan --}}
+            <div>
+                <label class="block text-[11.5px] font-medium text-[#464646] mb-1.5">
+                    Keterangan
+                </label>
+                <textarea name="keterangan" rows="3"
+                          placeholder="Deskripsi singkat tentang foto ini..."
+                          class="w-full text-[12.5px] text-[#121212] placeholder-[#ccc] bg-[#FAFAF9] border border-black/[0.08] rounded-[7px] px-3 py-[8px] outline-none focus:border-[#FF6B00] focus:bg-white transition-colors resize-none">{{ old('keterangan', $galeri->keterangan) }}</textarea>
+            </div>
+
+            {{-- Upload Foto --}}
+            <div>
+                <label class="block text-[11.5px] font-medium text-[#464646] mb-1.5">
+                    Foto
+                    <span class="text-[10.5px] font-normal text-[#aaa] ml-1">— kosongkan jika tidak ingin diganti</span>
+                </label>
+
+                {{-- Foto saat ini --}}
+                @if($galeri->foto)
+                <div class="flex items-start gap-3 p-3 bg-[#FAFAF9] border border-black/[0.06] rounded-[7px] mb-3">
+                    <img src="{{ asset('img/galeri/' . $galeri->foto) }}"
+                         id="foto-preview"
+                         alt="Foto saat ini"
+                         class="w-[100px] aspect-video object-cover rounded-[5px] border border-black/[0.08] shrink-0">
+                    <div class="flex flex-col justify-center gap-0.5">
+                        <p class="text-[11.5px] font-medium text-[#464646]" id="foto-label">Foto saat ini</p>
+                        <p class="text-[10.5px] text-[#bbb]">Unggah foto baru di bawah untuk mengganti</p>
+                    </div>
+                </div>
+                @endif
+
+                {{-- Drop zone --}}
+                <label for="foto-input"
+                       class="group flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed rounded-[7px] px-4 py-7 cursor-pointer transition-colors
+                              {{ $errors->has('foto') ? 'border-[#E24B4A] bg-[#FEF0F0]' : 'border-black/[0.10] bg-[#FAFAF9] hover:border-[#FF6B00]/50 hover:bg-[#FFF8F3]' }}"
+                       id="foto-drop-zone">
+                    <div class="w-9 h-9 rounded-full bg-black/[0.04] group-hover:bg-[#FF6B00]/10 flex items-center justify-center transition-colors">
+                        <i class="bi bi-arrow-repeat text-[#aaa] group-hover:text-[#FF6B00] text-base transition-colors"></i>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[12px] font-medium text-[#464646]" id="new-foto-label">Klik atau seret foto baru ke sini</p>
+                        <p class="text-[10.5px] text-[#bbb] mt-0.5">PNG, JPG, JPEG, WEBP — maks. 2 MB</p>
+                    </div>
+                    <input type="file" id="foto-input" name="foto" accept="image/*"
+                           class="hidden" onchange="previewFoto(this)">
+                </label>
+
+                {{-- Preview foto baru --}}
+                <div id="new-preview-wrap" class="hidden mt-2 relative w-full max-w-[180px]">
+                    <img id="new-preview" src="" alt="preview baru"
+                         class="w-full rounded-[7px] border border-black/[0.08] object-cover aspect-video">
+                    <button type="button" onclick="clearFoto()"
+                            class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white border border-black/[0.10] flex items-center justify-center text-[#888] hover:text-[#E24B4A] hover:border-[#E24B4A] transition-colors shadow-sm">
+                        <i class="bi bi-x text-xs leading-none"></i>
+                    </button>
+                    <span class="block text-[10px] text-[#FF6B00] mt-1 font-medium">Foto baru dipilih — akan mengganti yang lama</span>
+                </div>
+
+                @error('foto')
+                    <p class="text-[11px] text-[#E24B4A] mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+        </div>
+
+        {{-- Footer Actions --}}
+        <div class="px-5 py-3.5 border-t border-black/[0.06] bg-[#FAFAF9] flex items-center justify-end gap-2">
+            <a href="{{ route('galeri.index') }}"
+               class="inline-flex items-center gap-1.5 border border-black/[0.08] bg-white hover:bg-[#F5F4F2] text-[#464646] text-[12.5px] font-medium px-4 py-[7px] rounded-[7px] transition-colors">
+                Batal
+            </a>
+            <button type="submit"
+                    class="inline-flex items-center gap-1.5 bg-[#FF6B00] hover:bg-[#e05e00] text-white text-[12.5px] font-medium px-4 py-[7px] rounded-[7px] transition-colors">
+                <i class="bi bi-check-lg text-sm"></i>
+                Simpan Perubahan
+            </button>
+        </div>
+
+    </form>
+</div>
+
+@push('scripts')
+<script>
+    function previewFoto(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const label   = document.getElementById('new-foto-label');
+        const wrap    = document.getElementById('new-preview-wrap');
+        const preview = document.getElementById('new-preview');
+
+        label.textContent = file.name;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            wrap.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearFoto() {
+        document.getElementById('foto-input').value        = '';
+        document.getElementById('new-foto-label').textContent = 'Klik atau seret foto baru ke sini';
+        document.getElementById('new-preview-wrap').classList.add('hidden');
+        document.getElementById('new-preview').src         = '';
+    }
+</script>
+@endpush
+
+@endsection
