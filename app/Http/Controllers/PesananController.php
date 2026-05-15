@@ -25,7 +25,7 @@ class PesananController extends Controller
         $request->validate([
             'cek_in'        => 'required|date',
             'cek_out'       => 'required|date|after:cek_in',
-            'jml_kamar'     => 'required|integer',
+            'jml_kamar'     => 'required|integer|min:1',
             'nama_pemesan'  => 'required',
             'email_pemesan' => 'required|email',
             'hp_pemesan'    => 'required',
@@ -33,8 +33,19 @@ class PesananController extends Controller
             'kamar_id'      => 'required|exists:kamar,id',
         ]);
 
-        Pesanan::create($request->all());
-        return redirect()->route('pesanan.index')->with('success', 'Pesanan berhasil ditambahkan');
+        $kamar       = Kamar::findOrFail($request->kamar_id);
+        $jumlahMalam = \Carbon\Carbon::parse($request->cek_in)
+                        ->diffInDays(\Carbon\Carbon::parse($request->cek_out));
+        $totalHarga  = $kamar->harga * $request->jml_kamar * $jumlahMalam;
+
+        Pesanan::create([
+            ...$request->all(),
+            'total_harga' => $totalHarga,
+            'status'      => 'pending',
+        ]);
+
+        return redirect()->route('pesanan.index')
+            ->with('success', 'Pesanan berhasil ditambahkan');
     }
 
     public function show($id)
@@ -46,7 +57,7 @@ class PesananController extends Controller
     public function edit($id)
     {
         $pesanan = Pesanan::findOrFail($id);
-        $kamars = Kamar::all();
+        $kamars  = Kamar::all();
         return view('pesanan.edit', compact('pesanan', 'kamars'));
     }
 
@@ -57,7 +68,7 @@ class PesananController extends Controller
         $request->validate([
             'cek_in'        => 'required|date',
             'cek_out'       => 'required|date|after:cek_in',
-            'jml_kamar'     => 'required|integer',
+            'jml_kamar'     => 'required|integer|min:1',
             'nama_pemesan'  => 'required',
             'email_pemesan' => 'required|email',
             'hp_pemesan'    => 'required',
@@ -65,20 +76,32 @@ class PesananController extends Controller
             'kamar_id'      => 'required|exists:kamar,id',
         ]);
 
-        $pesanan->update($request->all());
-        return redirect()->route('pesanan.index')->with('success', 'Pesanan berhasil diupdate');
+        $kamar       = Kamar::findOrFail($request->kamar_id);
+        $jumlahMalam = \Carbon\Carbon::parse($request->cek_in)
+                        ->diffInDays(\Carbon\Carbon::parse($request->cek_out));
+        $totalHarga  = $kamar->harga * $request->jml_kamar * $jumlahMalam;
+
+        $pesanan->update([
+            ...$request->all(),
+            'total_harga' => $totalHarga,
+        ]);
+
+        return redirect()->route('pesanan.index')
+            ->with('success', 'Pesanan berhasil diupdate');
     }
 
     public function destroy($id)
     {
         Pesanan::findOrFail($id)->delete();
-        return redirect()->route('pesanan.index')->with('success', 'Pesanan berhasil dihapus');
+        return redirect()->route('pesanan.index')
+            ->with('success', 'Pesanan berhasil dihapus');
     }
 
     public function updateStatus(Request $request, $id)
     {
         $pesanan = Pesanan::findOrFail($id);
         $pesanan->update(['status' => $request->status]);
-        return redirect()->route('pesanan.index')->with('success', 'Status berhasil diupdate');
+        return redirect()->route('pesanan.index')
+            ->with('success', 'Status berhasil diupdate');
     }
 }

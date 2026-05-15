@@ -433,7 +433,7 @@ Error        : border-[#E24B4A] bg-[#FEF0F0] + text-[#E24B4A]
 - [x] Semua Views Blade dengan design system seragam
 - [x] Banner: upload image/gif/video, preview di CMS, deteksi tipe otomatis
 
-### ⏳ Belum Selesai
+### Update 15/05/2026 Selesai ✅
 
 - [ ] Fix `KamarController` — validasi pakai `nama_kamar` bukan `no_kamar`
 - [ ] Fix `PesananController` — auto kalkulasi `total_harga`

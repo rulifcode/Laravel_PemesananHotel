@@ -1,10 +1,13 @@
 <?php
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
+use App\Mail\PesananConfirmation;
 use App\Models\Kamar;
 use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Mail;
 
 class PesananController extends Controller
 {
@@ -21,17 +24,19 @@ class PesananController extends Controller
             'jml_kamar'     => 'required|integer|min:1',
         ]);
 
-        $kamar         = Kamar::findOrFail($validated['kamar_id']);
-        $cekIn         = \Carbon\Carbon::parse($validated['cek_in']);
-        $cekOut        = \Carbon\Carbon::parse($validated['cek_out']);
-        $jumlahMalam   = $cekIn->diffInDays($cekOut);
-        $totalHarga    = $kamar->harga * $validated['jml_kamar'] * $jumlahMalam;
+        $kamar       = Kamar::findOrFail($validated['kamar_id']);
+        $jumlahMalam = \Carbon\Carbon::parse($validated['cek_in'])
+                        ->diffInDays(\Carbon\Carbon::parse($validated['cek_out']));
+        $totalHarga  = $kamar->harga * $validated['jml_kamar'] * $jumlahMalam;
 
         $pesanan = Pesanan::create([
             ...$validated,
             'total_harga' => $totalHarga,
             'status'      => 'pending',
         ]);
+
+        Mail::to($pesanan->email_pemesan)
+            ->send(new PesananConfirmation($pesanan->load('kamar')));
 
         return response()->json([
             'message' => 'Pesanan berhasil dibuat',
